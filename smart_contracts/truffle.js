@@ -15,4 +15,19 @@
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!
+  networks: {
+    development: {
+      host: "localhost",
+      port: 9545,
+      network_id: "*" // Match any network id
+  },
+    rinkeby: {
+      provider: function() { 
+        return new HDWalletProvider(process.env.MNEMONIC, process.env.INFURA_ENDPOINT) 
+      },
+      port: 8545, // connection port
+      network_id: 4, // network id for test networks
+      gas: 4700000 // gas limit
+    }
+  }
 };
