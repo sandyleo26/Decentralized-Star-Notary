@@ -18,10 +18,12 @@
         ra: <input type="text" id="ra"><br>
         dec: <input type="text" id="dec"><br>
         mag: <input type="text" id="mag"><br>
-        starId: <input type="number" , id="tokenId" min=0><br>
+        tokenId: <input type="number" id="tokenId" min=0><br>
         <button id="claim-button" onclick="claimButtonClicked()">Claim Star</button>
-        query by tokenId: <input type="number" , id="queryById" min=0><br>
+        Query Star by tokenId: <input type="number" id="queryById" min=0><br>
         <button id="query-button" onclick="queryButtonClicked()">Get Star Info</button>
+        Put Star up for Sale by tokenId: <input type="number" id="sellById" min=0>&nbsp;&nbsp;Price: <input type="number" id="sellPrice" min=0> &nbsp;wei
+        <button id="sell-button" onclick="sellButtonClicked()">Sell Star</button>
         <textarea id="result" rows="5" cols="100"></textarea>
     </div>
 
@@ -517,8 +519,8 @@
         function claimButtonClicked() {
             web3.eth.getAccounts(function (error, accounts) {
                 if (error) {
-                    console.log(error)
-                    return
+                    console.log('getAccounts error:', error);
+                    return;
                 }
                 var account = accounts[0]
                 var name = document.getElementById("name").value;
@@ -548,7 +550,7 @@
                                 }
                             });
                         } else {
-                            console.log('sendTransaction error:', error);
+                            console.log('createStar error:', error);
                         }
                     });
             })
@@ -569,6 +571,26 @@
                         console.log('tokenIdToStarInfo error:', error);
                     }
                 })
+            })
+        }
+
+        function sellButtonClicked() {
+            web3.eth.getAccounts(function (error, accounts) {
+                if (error) {
+                    console.log('getAccounts error:', error);
+                    return;
+                }
+                var account = accounts[0];
+                var tokenId = document.getElementById("sellById").value;
+                var price = document.getElementById("sellPrice").value;
+                starNotary.putStarUpForSale.sendTransaction(tokenId, price, { from: account, gas: 4000000 },
+                    function (error, result) {
+                        if (!error) {
+                            document.getElementById("result").value = "txHash:" + result + ", transaction sent. It'll take a moment to complete..";
+                        } else {
+                            console.log('putStarUpForSale error:', error);
+                        }
+                    })
             })
         }
     </script>
