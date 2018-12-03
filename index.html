@@ -13,18 +13,16 @@
 <body>
     <div class="container">
         <h1>Star Notary</h1>
-
-        <div class="row">
-            <label class="bold">Star Name:</label>
-            <label id="star-name"></label>
-        </div>
-
-        <div class="row">
-            <label class="bold">Star Owner:</label>
-            <label id="star-owner"></label>
-        </div>
-
+        Star Name: <input type="text" id="name"><br>
+        Star Story: <input type="text" id="story"><br>
+        ra: <input type="text" id="ra"><br>
+        dec: <input type="text" id="dec"><br>
+        mag: <input type="text" id="mag"><br>
+        starId: <input type="number" , id="tokenId" min=0><br>
         <button id="claim-button" onclick="claimButtonClicked()">Claim Star</button>
+        query by tokenId: <input type="number" , id="queryById" min=0><br>
+        <button id="query-button" onclick="queryButtonClicked()">Get Star Info</button>
+        <textarea id="result" rows="5" cols="100"></textarea>
     </div>
 
     <script>
@@ -516,25 +514,6 @@
         // Grab the contract at specified deployed address with the interface defined by the ABI
         var starNotary = StarNotary.at('0xBb83e6A664a17f61D3c3a732eBF2Ff2B93A83eF7');
 
-        // Get and display star name
-        starNotary.starName(function (error, result) {
-            if (!error) {
-                document.getElementById('star-name').innerText = result
-            } else {
-                console.log(error);
-            }
-        });
-
-        // Get and display star owner
-        starNotary.starOwner(function (error, result) {
-            if (!error) {
-                document.getElementById('star-owner').innerText = result
-            } else {
-                console.log(error);
-            }
-        });
-
-        // Enable claim button being clicked
         function claimButtonClicked() {
             web3.eth.getAccounts(function (error, accounts) {
                 if (error) {
@@ -542,21 +521,54 @@
                     return
                 }
                 var account = accounts[0]
-                starNotary.claimStar(function (error, result) {
-                    if (!error) {
-                        var starClaimedEvent = starNotary.starClaimed({ from: account });
-                        starClaimedEvent.watch(function (error, result) {
-                            if (!error) {
-                                location.reload();
-                            } else {
-                                console.log('watching for star claimed event is failing');
-                            }
-                        });
-                    } else {
-                        console.log(error);
-                    }
-                });
+                var name = document.getElementById("name").value;
+                var story = document.getElementById("story").value;
 
+                // add unique prefix
+                var ra = document.getElementById("ra").value;
+                ra = "ra_" + ra;
+                var dec = document.getElementById("dec").value;
+                dec = "dec_" + dec;
+                var mag = document.getElementById("mag").value;
+                mag = "mag_" + mag;
+
+                var tokenId = document.getElementById("tokenId").value;
+
+                starNotary.createStar.sendTransaction(name, story, ra, dec, mag, tokenId,
+                    { from: account, gas: 4000000 },
+                    function (error, result) {
+                        if (!error) {
+                            document.getElementById("result").value = "txHash:" + result + ", transaction pending...";
+                            var starClaimedEvent = starNotary.Transfer();
+                            starClaimedEvent.watch(function (error, result) {
+                                if (!error) {
+                                    document.getElementById("result").value = "transaction complete!";
+                                } else {
+                                    console.log('watch error:', error);
+                                }
+                            });
+                        } else {
+                            console.log('sendTransaction error:', error);
+                        }
+                    });
+            })
+        }
+        // Enable query button being clicked
+        function queryButtonClicked() {
+            web3.eth.getAccounts(function (error, accounts) {
+                if (error) {
+                    console.log('getAccounts error:', error);
+                    return;
+                }
+                var account = accounts[0];
+                var tokenId = document.getElementById("queryById").value;
+                starNotary.tokenIdToStarInfo.call(tokenId, function (error, result) {
+                    if (!error) {
+                        document.getElementById("result").value = "[" + result + "]";
+                    } else {
+                        console.log('tokenIdToStarInfo error:', error);
+                    }
+                })
             })
         }
     </script>
