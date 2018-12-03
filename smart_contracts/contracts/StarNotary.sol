@@ -39,7 +39,7 @@ contract StarNotary is ERC721 {
         bytes32 starHash = generateStarHash(_ra, _dec, _mag);
         starHashMap[starHash] = true;
 
-        _mint(msg.sender, _tokenId);
+        mint(_tokenId);
     }
 
     function putStarUpForSale(uint256 _tokenId, uint256 _price) public {
@@ -73,5 +73,20 @@ contract StarNotary is ERC721 {
     // generate hash for coordinates
     function generateStarHash(string _ra, string _dec, string _mag) private pure returns(bytes32) {
         return keccak256(abi.encodePacked(_ra, _dec, _mag));
+    }
+
+    // return star's cost
+    function starsForSale(uint256 _tokenId) public view returns(uint256){
+        return starsForSale[_tokenId];
+    }
+
+    // wrapper to mint token
+    function mint(uint256 _tokenId) public {
+        super._mint(msg.sender, _tokenId);
+    }
+
+    // wrapper for setApprovalForAll
+    function SetApprovalForAll(address to, bool approved) public {
+        super.setApprovalForAll(to, approved);
     }
 }

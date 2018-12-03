@@ -64,6 +64,13 @@ contract('StarNotary', accounts => {
                 assert.equal(starInfo[0], name)
             }
         })
+
+        it('test mint', async function() {
+            const tx = await this.contract.mint(starId, { from: defaultUser })
+
+            // check emit transfer
+            assert.equal(tx.logs[0].event, 'Transfer')
+        })
     })
 
     describe('buying and selling stars', () => {
@@ -127,7 +134,7 @@ contract('StarNotary', accounts => {
 
         beforeEach(async function() {
             await this.contract.createStar(name, starStory, ra, dec, mag, starId, {from: user1})
-            tx = await this.contract.setApprovalForAll(user2, starId, {from: user1})
+            tx = await this.contract.SetApprovalForAll(user2, starId, {from: user1})
         })
 
         it('operator is approved', async function() {
