@@ -1,6 +1,14 @@
 Decentralized Star Notary
 --
 
+### Test
+```shell
+cd smart_contracts && npm install && truffle test
+```
+
+### Client
+I used VS Code plugin
+
 ### Contract Address
 `0xBb83e6A664a17f61D3c3a732eBF2Ff2B93A83eF7`
 
